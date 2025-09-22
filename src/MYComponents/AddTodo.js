@@ -11,7 +11,7 @@ const AddTodo = (props) => {
             return;
         }
         props.addTodo(title, desc);
-        setTitle(""); // clear input after add
+        setTitle(""); // clear input 
         setDesc("");
     }
 
