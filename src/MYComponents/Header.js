@@ -1,5 +1,5 @@
 import React from 'react'
-import { propTypes } from 'react-bootstrap/esm/Image'
+// import { propTypes } from 'react-bootstrap/esm/Image'
 import PropTypes from 'prop-types'
 import {Link} from "react-router-dom";
 
@@ -19,6 +19,9 @@ export default function Header(props) {
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/About">About</Link>
+              </li> 
+              <li className="nav-item">
+                <Link className="nav-link" to="/MyTodos">My Todos</Link>
               </li> 
             </ul>
             {props.searchBar?<form className="d-flex" role="search">

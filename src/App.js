@@ -5,68 +5,91 @@ import Footer from './MYComponents/footer';
 import React, { useState, useEffect } from 'react';
 import AddTodo from './MYComponents/AddTodo';
 import About from './MYComponents/About';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route, 
-} from "react-router-dom";
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import MyTodos from './MYComponents/MyTodos';
 
 function App() {
-  let initTodo;
+  const savedTodos = JSON.parse(localStorage.getItem("todos") || "[]");
+  const [todos, setTodos] = useState(savedTodos);
 
-  if (localStorage.getItem("todos") === null) {
-    initTodo = [];
-  }
-  else {
-    initTodo = JSON.parse(localStorage.getItem("todos"));
-  }
-
-  const [todos, setTodos] = useState(initTodo);
-
-   useEffect(() => {
+  useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
 
+  // DELETE
   const onDelete = (todo) => {
-    console.log("I am onDelete of todo", todo);
-    setTodos(todos.filter((e) => e !== todo));
+    fetch(`http://localhost:5000/todos/${todo.sno}`, { method: 'DELETE' })
+      .then(res => res.json())
+      .then(() => {
+        setTodos(todos.filter(e => e.sno !== todo.sno));
+      })
+      .catch(err => console.error(err));
   }
 
-  const addTodo = (title, desc) => {
-    console.log("I am adding this todo", title, desc);
-    const myTodo = {
-      sno: todos.length + 1,
-      title: title,
-      desc: desc,
+  // ADD
+  const addTodo = (title, desc, status) => {
+    if (!title || !desc || !status) {
+      alert("Title, Description or Status cannot be blank");
+      return;
     }
-    setTodos([...todos, myTodo]);
-    console.log(myTodo);
+
+    const newTodo = { title, description: desc, status };
+    fetch('http://localhost:5000/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTodo)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          console.error("Error from backend:", data.error);
+          alert("Error saving todo: " + data.error);
+        } else {
+          setTodos([...todos, data]);
+          console.log("Todo saved:", data);
+        }
+      })
+      .catch(err => console.error(err));
   }
+const updateTodo = (sno, updatedTodo) => {
+  fetch(`http://localhost:5000/todos/${sno}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedTodo)
+  })
+  .then(res => res.json())
+  .then(data => {
+    const newTodos = todos.map(todo => todo.sno === sno ? data : todo);
+    setTodos(newTodos);
+  })
+  .catch(err => console.error(err));
+};
 
   return (
-    <>
     <Router>
       <Header title="My Todos List" searchBar={false} />
-    <Routes>
-      <Route 
-            path="/" 
-            element={
-              <>
-                <AddTodo addTodo={addTodo} />
-                <Todos todos={todos} onDelete={onDelete} />
-              </>
-            } 
-          />
+      <Routes>
+        <Route path="/" element={
+          <>
+            <AddTodo addTodo={addTodo} />
+            <Todos todos={todos} onDelete={onDelete} />
+          </>
+        } />
+        <Route path="/about" element={<About />} />
+        
+       <Route 
+  path="/mytodos" 
+  element={<MyTodos 
+            todos={todos} 
+            onDelete={onDelete} 
+            addTodo={addTodo} 
+            updateTodo={updateTodo} 
+          />} 
+/>
 
-          <Route path="/about" element={<About />} />
-        </Routes>
-
-
-      
+      </Routes>
       <Footer />
-      </Router>
-    </>
+    </Router>
   );
 }
 
