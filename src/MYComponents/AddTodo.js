@@ -5,7 +5,6 @@ const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
   const [desc, setDesc] = useState("");
   const [status, setStatus] = useState("onhold");
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (editTodo) {
       setTitle(editTodo.title);
@@ -23,19 +22,15 @@ const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
     }
 
     if (editTodo) {
-      // Update existing todo
       updateTodo(editTodo.sno, { title, description: desc, status });
     } else {
-      // Add new todo
       addTodo(title, desc, status);
     }
 
-    // Clear form
     setTitle("");
     setDesc("");
     setStatus("onhold");
 
-    // Close modal if function provided
     if (closeModal) {
       closeModal();
     }
@@ -56,16 +51,18 @@ const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="desc" className="form-label">Todo Description</label>
-          <input
-            type="text"
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-            className="form-control"
-            id="desc"
-          />
-        </div>
+       <div className="mb-3">
+  <label htmlFor="desc" className="form-label">Todo Description</label>
+  <textarea
+    value={desc}
+    onChange={(e) => setDesc(e.target.value)}
+    className="form-control"
+    id="desc"
+    rows={4}  // you can increase/decrease the height
+    placeholder="Enter detailed description here..."
+  />
+</div>
+
 
         <div className="mb-3">
           <label htmlFor="status" className="form-label">Status</label>
