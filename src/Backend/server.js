@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 // const bodyParser = require('body-parser');
 const Todo = require('./models/Todo');
+const User = require('./models/User');
+
 const sequelize = require('./db');
 
 const app = express();
@@ -79,6 +81,80 @@ app.delete('/todos/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+//USER ROUTES
+// GET all users
+app.get('/users', async (req, res) => {
+  try {
+    const users = await User.findAll({ order: [['id', 'DESC']] });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST add user
+app.post('/users', async (req, res) => {
+  const { name, email, dob, phone, address } = req.body;
+
+  if (!name || !email || !dob || !phone || !address) {
+    return res.status(400).json({ error: "All fields required" });
+  }
+
+  try {
+    const newUser = await User.create({ name, email, dob, phone, address });
+    res.json(newUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// DELETE user
+app.delete('/users/:id', async (req, res) => {
+  try {
+    await User.destroy({ where: { id: req.params.id } });
+    res.json({ message: "User deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// UPDATE user
+app.put('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email, dob, phone, address } = req.body;
+
+  if (!name || !email || !dob || !phone || !address) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    // Find user by primary key
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update user fields
+    user.name = name;
+    user.email = email;
+    user.dob = dob;
+    user.phone = phone;
+    user.address = address;
+
+    // Save changes
+    await user.save();
+
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 // Sync DB and start server
 sequelize.sync().then(() => {

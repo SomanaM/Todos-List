@@ -1,12 +1,14 @@
 import './App.css';
 import Header from './MYComponents/Header';
 import Todos from './MYComponents/Todos';
-import Footer from './MYComponents/footer';
+// import Footer from './MYComponents/footer';
 import React, { useState, useEffect } from 'react';
 import AddTodo from './MYComponents/AddTodo';
 import About from './MYComponents/About';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MyTodos from './MYComponents/MyTodos';
+import Users from './MYComponents/User';
+
 
 function App() {
   const savedTodos = JSON.parse(localStorage.getItem("todos") || "[]");
@@ -86,9 +88,10 @@ const updateTodo = (sno, updatedTodo) => {
             updateTodo={updateTodo} 
           />} 
 />
+<Route path="/users" element={<Users />} />
 
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </Router>
   );
 }
