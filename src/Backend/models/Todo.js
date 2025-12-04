@@ -18,6 +18,14 @@ const Todo = sequelize.define('Todo', {
     status: {
         type: DataTypes.ENUM('onhold', 'in_progress', 'completed'), 
         allowNull: false
+    },
+     assignedUserId: {              
+        type: DataTypes.INTEGER,
+        allowNull: true,            
+        references: {
+            model: 'users',        
+            key: 'id'
+        }
     }
 }, {
     tableName: 'todos', 

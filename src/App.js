@@ -13,10 +13,25 @@ import Users from './MYComponents/User';
 function App() {
   const savedTodos = JSON.parse(localStorage.getItem("todos") || "[]");
   const [todos, setTodos] = useState(savedTodos);
+const [users, setUsers] = useState([]);
 
+useEffect(() => {
+  fetch("http://localhost:5000/users")
+    .then(res => res.json())
+    .then(data => setUsers(data))
+    .catch(err => console.error(err));
+}, []);
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
+
+  const addUserToState = (newUser) => {
+  setUsers([newUser, ...users]); 
+};
+
+
+
+
 
   // DELETE
   const onDelete = (todo) => {
@@ -29,13 +44,13 @@ function App() {
   }
 
   // ADD
-  const addTodo = (title, desc, status) => {
+  const addTodo = (title, desc, status,assignedUserId) => {
     if (!title || !desc || !status) {
       alert("Title, Description or Status cannot be blank");
       return;
     }
 
-    const newTodo = { title, description: desc, status };
+    const newTodo = { title, description: desc, status,assignedUserId };
     fetch('http://localhost:5000/todos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,6 +68,8 @@ function App() {
       })
       .catch(err => console.error(err));
   }
+
+
 const updateTodo = (sno, updatedTodo) => {
   fetch(`http://localhost:5000/todos/${sno}`, {
     method: 'PUT',
@@ -86,10 +103,10 @@ const updateTodo = (sno, updatedTodo) => {
             onDelete={onDelete} 
             addTodo={addTodo} 
             updateTodo={updateTodo} 
+            users={users} 
           />} 
 />
-<Route path="/users" element={<Users />} />
-
+<Route path="/users" element={<Users addUserToState={addUserToState} />} />
       </Routes>
       {/* <Footer /> */}
     </Router>

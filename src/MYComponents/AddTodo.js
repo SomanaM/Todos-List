@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 
-const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
+const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal, users }) => {
     const [title, setTitle] = useState("");
     const [desc, setDesc] = useState("");
     const [status, setStatus] = useState("onhold");
+    const [assignedUserId, setAssignedUserId] = useState("");
+
 
     useEffect(() => {
         if (editTodo) {
             setTitle(editTodo.title);
             setDesc(editTodo.description);
             setStatus(editTodo.status);
+            setAssignedUserId(editTodo.assignedUserId || "");
+
         }
     }, [editTodo]);
+    // <-- ADD THIS
+
 
     const submit = (e) => {
         e.preventDefault();
@@ -22,9 +28,9 @@ const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
         }
 
         if (editTodo) {
-            updateTodo(editTodo.sno, { title, description: desc, status });
+            updateTodo(editTodo.sno, { title, description: desc, status, assignedUserId });
         } else {
-            addTodo(title, desc, status);
+            addTodo(title, desc, status, assignedUserId);
         }
 
         setTitle("");
@@ -38,7 +44,7 @@ const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
 
     return (
         <div className="container my-3">
-            <h3>{editTodo ? "Edit Todo" : "Add Todo"}</h3>
+            {/* <h3>{editTodo ? "Edit Todo" : "Add Todo"}</h3> */}
             <form onSubmit={submit}>
                 <div className="mb-3">
                     <label htmlFor="title" className="form-label">Todo Title</label>
@@ -59,9 +65,25 @@ const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
                         onChange={(e) => setDesc(e.target.value)}
                         className="form-control"
                         id="desc"
-                        rows={4} 
+                        rows={4}
                         placeholder="Enter detailed description here..."
                     />
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label">Assign To</label>
+                    <select
+                        className="form-select"
+                        value={assignedUserId}
+                        onChange={(e) => setAssignedUserId(e.target.value)}
+                    >
+                        <option value="">Unassigned</option>
+                        {users.map((user) => (
+                            <option key={user.id} value={user.id}>
+                                {user.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
 
@@ -83,6 +105,7 @@ const AddTodo = ({ addTodo, editTodo, updateTodo, closeModal }) => {
                 <button type="submit" className="btn btn-sm btn-success">
                     {editTodo ? "Update Todo" : "Add Todo"}
                 </button>
+                <button type="button" className="btn btn-sm btn-secondary mx-2" onClick={closeModal}>Cancel</button>
             </form>
         </div>
     );

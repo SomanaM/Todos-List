@@ -16,6 +16,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send('API running...');
 });
+//TODO ROUTES
 
 // GET all todos
 app.get('/todos', async (req, res) => {
@@ -30,11 +31,11 @@ app.get('/todos', async (req, res) => {
 // POST add new todo
 app.post('/todos', async (req, res) => {
     console.log("Incoming todo:", req.body); 
-    const { title, description, status } = req.body;
+    const { title, description, status,assignedUserId } = req.body;
     console.log(title, description, status); 
 
     try {
-        const newTodo = await Todo.create({ title, description, status });
+        const newTodo = await Todo.create({ title, description, status,assignedUserId });
         res.json(newTodo);
     } catch (err) {
         console.error(err); 
@@ -44,26 +45,25 @@ app.post('/todos', async (req, res) => {
 
 // UPDATE a todo
 app.put('/todos/:id', async (req, res) => {
-    const { id } = req.params; // id of the todo to update
-    const { title, description, status } = req.body; // new data
+    const { id } = req.params; 
+    const { title, description, status,assignedUserId } = req.body;
 
     try {
-        // Find the todo by primary key (sno)
         const todo = await Todo.findByPk(id);
 
         if (!todo) {
             return res.status(404).json({ error: 'Todo not found' });
         }
 
-        // Update todo fields
         todo.title = title;
         todo.description = description;
         todo.status = status;
+            todo.assignedUserId = assignedUserId;
 
-        // Save changes
+
         await todo.save();
 
-        res.json(todo); // return updated todo
+        res.json(todo); 
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
@@ -83,6 +83,7 @@ app.delete('/todos/:id', async (req, res) => {
 });
 
 //USER ROUTES
+
 // GET all users
 app.get('/users', async (req, res) => {
   try {
@@ -93,7 +94,7 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// POST add user
+// POST /add user
 app.post('/users', async (req, res) => {
   const { name, email, dob, phone, address } = req.body;
 
